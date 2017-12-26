@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        .divDialog {
+            position: absolute;
+            color: yellow;
+            opacity: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="btn1">弹出1</button>
+    <button id="btn2">弹出2</button>
+    <button id="btn3">弹出3</button>
+    <script>
+        var timer = null;
+
+        function Dialog(option) {
+            this.width = 300;
+            this.height = 200;
+            this.left = 100;
+            this.top = 100;
+            this.bg = "#000";
+            this.divDialog = "";
+            this.boy = document.body;
+            this.id = "";
+            this.isdrag = false;
+            this.text = "我是一个弹出框";
+            for (var i in option) {
+                this[i] = option[i];
+            }
+            this.init();
+            this.openn();
+        }
+        Dialog.prototype = {
+            constructor: Dialog,
+            init: function() {
+                var divid = document.getElementById(this.id);
+                if (divid) {
+                    this.boy.removeChild(divid);
+                }
+                this.creat();
+                if (this.isdrag) {
+                    this.dia();
+                }
+            },
+            creat: function() {
+                var that = this;
+                var boy = document.body;
+                var divDialog = document.createElement("div");
+                var closeDia = document.createElement("span");
+                var pDialog = document.createElement("p");
+
+                divDialog.className = "divDialog";
+
+                divDialog.style.width = this.width + "px";
+                divDialog.style.height = this.height + "px";
+                divDialog.style.top = this.top + "px";
+                divDialog.style.left = this.left + "px";
+                divDialog.style.background = this.bg;
+
+                closeDia.innerHTML = "×";
+                pDialog.innerHTML = this.text;
+
+                divDialog.id = this.id;
+
+                boy.appendChild(divDialog);
+                divDialog.appendChild(closeDia);
+                divDialog.appendChild(pDialog);
+
+                this.divDialog = divDialog;
+
+                closeDia.onclick = function() {
+                    that.close();
+                }
+            },
+            dia: function() {
+                var that = this;
+                this.divDialog.onmousedown = function(e) {
+                    var e = e || window.event;
+                    var x = e.pageX - this.offsetLeft;
+                    var y = e.pageY - this.offsetTop;
+                    document.onmousemove = function(e) {
+                        var e = e || window.event;
+                        var movx = e.pageX - x;
+                        var movy = e.pageY - y;
+
+                        that.divDialog.style.left = movx + "px";
+                        that.divDialog.style.top = movy + "px";
+                    }
+                    document.onmouseup = function() {
+                        this.onmousemove = null;
+                    }
+                }
+            },
+            close: function() {
+                var that = this;
+                var opt = 1;
+                clearInterval(timer);
+                timer = setInterval(function() {
+                    opt -= 0.1;
+                    that.divDialog.style.opacity = opt;
+                    if (opt <= 0) {
+                        that.divDialog.style.opacity = 0;
+                        that.boy.removeChild(that.divDialog);
+                        clearInterval(timer);
+                    }
+                }, 100)
+            },
+            openn: function() {
+                var that = this;
+                var opt = 0;
+                clearInterval(timer);
+                timer = setInterval(function() {
+                    opt += 0.1;
+                    that.divDialog.style.opacity = opt;
+                    if (opt == 1) {
+                        that.divDialog.style.opacity = 1;
+                        clearInterval(timer);
+                    }
+                }, 100)
+            },
+        };
+        var btn1 = document.getElementById("btn1");
+        var btn2 = document.getElementById("btn2");
+        var btn3 = document.getElementById("btn3");
+        btn1.onclick = function() {
+            new Dialog({
+                width: 500,
+                bg: "red",
+                text: "我是第一个弹出框，我是红色",
+                isdrag: true,
+                id: "box",
+            });
+        }
+        btn2.onclick = function() {
+            new Dialog({
+                text: "我是第二个",
+                left: 800,
+                isdrag: true,
+                id: "box1",
+            });
+        }
+        btn3.onclick = function() {
+            new Dialog({
+                width: 80,
+                height: 80,
+                bg: "#0ff",
+                left: 300,
+                top: 600,
+                text: "我是第三个",
+                id: "box2",
+            });
+        }
+    </script>
+</body>
+
+</html>
